@@ -46,6 +46,14 @@ const Home = () => {
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-100">
+            {/* Background video */}
+            <video
+                className="absolute top-0 left-0 w-full h-full object-cover"
+                src="https://cdn.pixabay.com/video/2023/08/23/177314-857365374_large.mp4" // Ensure this is the correct path to your video file
+                autoPlay
+                loop
+                muted
+            />
             <Card color="bg-slate-200" shadow={true} className="p-6 w-180 max-w-md">
                 <Typography variant="h4" color="blue-gray">
                     Search Trains
