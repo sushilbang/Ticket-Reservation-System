@@ -24,12 +24,12 @@ exports.register = async (req, res) => {
         // Generate a unique userID
         const userID = new mongoose.Types.ObjectId().toString();
 
-        user = new User({ name, email, password, userID }); // Add userID to user
+         user = new User({ name, email, password}); // Add userID to user
 
         await user.save();
 
         // Generate JWT token
-        const token = jwt.sign({ userID: user.userID }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userID: user.userID, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.status(201).json({
             msg: 'User registered successfully',
@@ -59,7 +59,7 @@ exports.login = async (req, res) => {
         }
 
         // Generate JWT token
-        const token = jwt.sign({ userID: user.userID }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userID: user.userID, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.status(200).json({
             msg: 'Login Successful',

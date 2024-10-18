@@ -16,13 +16,14 @@ const Login = () => {
         try {
             const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
             toast.success('Login successful!');
-            login(); // Set authentication state
+            login(response.data.token); // Pass the email to login
             navigate('/'); // Redirect to train search page
         } catch (err) {
             toast.error(err.response?.data?.msg || 'An error occurred');
             setError(err.response?.data?.msg || 'An error occurred');
         }
     };
+    
 
     // Mock Google sign-in function
     const handleGoogleSignIn = () => {

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Card, Input, Button, Typography } from "@material-tailwind/react";
+import React, { useState, useEffect } from 'react';
+import { Card, Button, Typography } from "@material-tailwind/react";
 import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
@@ -8,7 +8,52 @@ const Home = () => {
     const [date, setDate] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [stations, setStations] = useState([]); // State for station names
+    const [filteredStations, setFilteredStations] = useState([]); // State for filtered station names
+    const [searchFrom, setSearchFrom] = useState(''); // Search input for 'From'
+    const [searchTo, setSearchTo] = useState(''); // Search input for 'To'
+    const [showFromDropdown, setShowFromDropdown] = useState(false); // Toggle dropdown visibility for 'From'
+    const [showToDropdown, setShowToDropdown] = useState(false); // Toggle dropdown visibility for 'To'
     const navigate = useNavigate();
+
+    // Fetch distinct station names from the server
+    useEffect(() => {
+        const fetchStations = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/stations');
+                if (response.ok) {
+                    const data = await response.json();
+                    setStations(data); // Set the distinct stations
+                    setFilteredStations(data); // Initialize filtered stations
+                } else {
+                    setError('Failed to fetch station names');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                setError('An error occurred while fetching station names');
+            }
+        };
+
+        fetchStations();
+    }, []);
+
+    // Filter stations based on the search input for 'From'
+    useEffect(() => {
+        setFilteredStations(
+            stations.filter(station =>
+                station.toLowerCase().includes(searchFrom.toLowerCase())
+            )
+        );
+    }, [searchFrom, stations]);
+
+    // Filter stations based on the search input for 'To'
+    useEffect(() => {
+        setFilteredStations(
+            stations.filter(station =>
+                station.toLowerCase().includes(searchTo.toLowerCase())
+            )
+        );
+    }, [searchTo, stations]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -66,41 +111,72 @@ const Home = () => {
                         <Typography variant="h6" color="blue-gray" className="-mb-3">
                             From
                         </Typography>
-                        <Input
-                            size="lg"
-                            placeholder="Enter departure station"
-                            value={from}
-                            onChange={(e) => setFrom(e.target.value)}
-                            className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-                            labelProps={{
-                                className: "before:content-none after:content-none",
+                        <input
+                            type="text"
+                            placeholder="Type to search..."
+                            value={searchFrom}
+                            onChange={(e) => {
+                                setSearchFrom(e.target.value);
+                                setFrom(e.target.value); // Set selected station
+                                setShowFromDropdown(true); // Show dropdown when typing
                             }}
+                            onFocus={() => setShowFromDropdown(true)} // Show dropdown on focus
+                            onBlur={() => setTimeout(() => setShowFromDropdown(false), 200)} // Delay hiding dropdown to allow click events
+                            className="border border-gray-300 rounded-md p-2"
                         />
+                        {showFromDropdown && filteredStations.length > 0 && (
+                            <ul className="border border-gray-300 rounded-md absolute bg-white z-10">
+                                {filteredStations.map((station) => (
+                                    <li key={station} className="p-2 hover:bg-gray-200 cursor-pointer" onClick={() => {
+                                        setFrom(station);
+                                        setSearchFrom(station);
+                                        setShowFromDropdown(false);
+                                    }}>
+                                        {station}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                        
                         <Typography variant="h6" color="blue-gray" className="-mb-3">
                             To
                         </Typography>
-                        <Input
-                            size="lg"
-                            placeholder="Enter destination station"
-                            value={to}
-                            onChange={(e) => setTo(e.target.value)}
-                            className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-                            labelProps={{
-                                className: "before:content-none after:content-none",
+                        <input
+                            type="text"
+                            placeholder="Type to search..."
+                            value={searchTo}
+                            onChange={(e) => {
+                                setSearchTo(e.target.value);
+                                setTo(e.target.value); // Set selected station
+                                setShowToDropdown(true); // Show dropdown when typing
                             }}
+                            onFocus={() => setShowToDropdown(true)} // Show dropdown on focus
+                            onBlur={() => setTimeout(() => setShowToDropdown(false), 200)} // Delay hiding dropdown to allow click events
+                            className="border border-gray-300 rounded-md p-2"
                         />
+                        {showToDropdown && filteredStations.length > 0 && (
+                            <ul className="border border-gray-300 rounded-md absolute bg-white z-10">
+                                {filteredStations.map((station) => (
+                                    <li key={station} className="p-2 hover:bg-gray-200 cursor-pointer" onClick={() => {
+                                        setTo(station);
+                                        setSearchTo(station);
+                                        setShowToDropdown(false);
+                                    }}>
+                                        {station}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+
                         <Typography variant="h6" color="blue-gray" className="-mb-3">
                             Date
                         </Typography>
-                        <Input
+                        <input
                             type="date"
                             size="lg"
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
-                            className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-                            labelProps={{
-                                className: "before:content-none after:content-none",
-                            }}
+                            className="border border-gray-300 rounded-md p-2"
                         />
                     </div>
                     <Button type="submit" className="mt-6" fullWidth>

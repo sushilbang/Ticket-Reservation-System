@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // Import useAuth
 
 const Navbar = () => {
-    const { isAuthenticated, logout } = useAuth();
+    const { isAuthenticated, userEmail, logout } = useAuth(); // Use isAuthenticated and userEmail from context
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -16,13 +16,13 @@ const Navbar = () => {
             <div className="container mx-auto flex items-center justify-between">
                 <Link to="/" className="text-white text-lg font-semibold">Ticket Reservation</Link>
                 <div className="flex items-center space-x-4">
-                    {isAuthenticated ? (
+                    {isAuthenticated ? ( // Check if user is logged in
                         <>
                             <button
                                 onClick={() => navigate('/profile')}
                                 className="text-white hover:text-gray-300 transition duration-300"
                             >
-                                Profile
+                                Profile {/* Display user email if needed */}
                             </button>
                             <button
                                 onClick={handleLogout}
